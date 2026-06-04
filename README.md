@@ -73,25 +73,44 @@ O projeto segue os princípios de **Clean Architecture** com separação estrita
 
 ---
 
-## Modelagem do Banco de Dados
+## Diagrama de Entidades (MER)
 
-### Diagrama de Entidades
-```
-┌──────────────────────────────┐        ┌──────────────────────────────┐
-│          INGRESSOS           │        │          PAGAMENTOS          │
-├──────────────────────────────┤        ├──────────────────────────────┤
-│ ID            RAW(16)   PK   │        │ ID            RAW(16)   PK   │
-│ USUARIO_ID    RAW(16)        │◄───────│ INGRESSO_ID   RAW(16)   FK   │
-│ DATA_TOUR_ID  RAW(16)        │        │ METODO        NUMBER(1)      │
-│ CODIGO_UNICO  VARCHAR2(40)   │        │ STATUS        NUMBER(1)      │
-│ STATUS        NUMBER(1)      │        │ DATA_PAGAMENTO TIMESTAMP     │
-│ DATA_COMPRA   TIMESTAMP      │        │ VALOR         NUMBER(10,2)   │
-│ VALOR_PAGO    NUMBER(10,2)   │        └──────────────────────────────┘
-└──────────────────────────────┘
-Relacionamento: 1 INGRESSO ──── 1 PAGAMENTO
+O modelo de dados foi estruturado seguindo os princípios de **Clean Architecture** e mapeado utilizando **Entity Framework Core** para um banco de dados **Oracle**. 
+
+A arquitetura de dados reflete o domínio de negócio da **OrbitPass** (Turismo Espacial), cumprindo todos os requisitos de integridade relacional, incluindo relacionamentos `1:N` e `1:1`.
+
+```mermaid
+erDiagram
+    DATAS_TOUR ||--o{ INGRESSOS : "oferece"
+    INGRESSOS ||--|| PAGAMENTOS : "gera"
+
+    DATAS_TOUR {
+        RAW_16 ID PK "Identificador único (Guid)"
+        NVARCHAR2 DESTINO "Ex: Órbita Baixa, Lua, Marte"
+        TIMESTAMP DATA_PARTIDA "Data e hora do lançamento"
+        NUMBER PRECO_BASE "Valor base da viagem"
+    }
+
+    INGRESSOS {
+        RAW_16 ID PK "Identificador único (Guid)"
+        RAW_16 DATA_TOUR_ID FK "Referência ao destino/data"
+        NUMBER STATUS_INGRESSO "Enum (Pendente, Confirmado, Cancelado)"
+    }
+
+    PAGAMENTOS {
+        RAW_16 ID PK "Identificador único (Guid)"
+        RAW_16 INGRESSO_ID FK "Referência ao ingresso gerado"
+        NUMBER VALOR "Valor final processado"
+        NUMBER METODO_PAGAMENTO "Enum (Cartão, Cripto, etc)"
+        NUMBER STATUS_PAGAMENTO "Enum (Aprovado, Recusado)"
+    }
 ```
 
-### Tabela INGRESSOS
+### Dicionário de Dados
+
+Enquanto o diagrama acima ilustra a topologia e os relacionamentos principais, o dicionário de dados abaixo detalha a estrutura física completa (DDL) implementada no Oracle, incluindo colunas de auditoria e regras de negócio:
+
+#### Tabela INGRESSOS
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
@@ -103,7 +122,7 @@ Relacionamento: 1 INGRESSO ──── 1 PAGAMENTO
 | DATA_COMPRA | TIMESTAMP | Data e hora da compra (UTC) |
 | VALOR_PAGO | NUMBER(10,2) | Valor pago pelo ingresso |
 
-### Tabela PAGAMENTOS
+#### Tabela PAGAMENTOS
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
