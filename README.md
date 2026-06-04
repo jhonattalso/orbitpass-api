@@ -183,46 +183,103 @@ Após iniciar:
 
 ## API Reference
 
-### Autenticação
+Rotas consumidas via HTTP, retornam JSON. Documentadas interativamente em `/swagger`.
 
-| Método | Rota | Auth | Descrição |
-|---|---|---|---|
-| `POST` | `/api/Auth/token` | ❌ | Gera token JWT para uso nos demais endpoints |
+#### Autenticação
 
-**Credenciais de teste:**
-```json
-{
-  "email": "teste@orbitpass.com",
-  "senha": "Senha@123"
-}
-```
+| Método | Rota | Descrição | Auth |
+| :---: | :--- | :--- | :---: |
+| `POST` | `/api/Auth/token` | Autentica e retorna token JWT | ❌ |
 
-**Resposta:**
+**Credenciais disponíveis para teste:**
+
+| Email | Senha | Permissões |
+|---|---|---|
+| `teste@orbitpass.com` | `Senha@123` | Acesso completo à API |
+
+**Exemplo de resposta:**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
-### Ingressos
+> Para autenticar no Swagger, clique em **Authorize** e informe `Bearer {token}`.
 
-| Método | Rota | Auth | Descrição |
-|---|---|---|---|
-| `POST` | `/api/ingressos` | ✅ JWT | Compra um ingresso e processa o pagamento |
-| `GET` | `/api/ingressos/usuario/{usuarioId}` | ✅ JWT | Lista todos os ingressos do usuário |
-| `DELETE` | `/api/ingressos/{ingressoId}/usuario/{usuarioId}` | ✅ JWT | Cancela um ingresso |
+---
 
-### Pagamentos
+#### Ingressos
 
-| Método | Rota | Auth | Descrição |
-|---|---|---|---|
-| `POST` | `/api/pagamentos` | ✅ JWT | Processa o pagamento de um ingresso existente |
+| Método | Rota | Descrição | Auth |
+| :---: | :--- | :--- | :---: |
+| `POST` | `/api/ingressos` | Compra um ingresso e processa o pagamento automaticamente | ✅ |
+| `GET` | `/api/ingressos/usuario/{usuarioId}` | Lista todos os ingressos de um usuário | ✅ |
+| `DELETE` | `/api/ingressos/{ingressoId}/usuario/{usuarioId}` | Cancela um ingresso ativo | ✅ |
 
-### Monitoramento
+**Corpo da requisição para `POST /api/ingressos`:**
+
+| Campo | Tipo | Valores aceitos |
+|---|---|---|
+| `usuarioId` | `guid` | ID do usuário comprador |
+| `dataTourId` | `guid` | ID da data do tour espacial |
+| `valorPago` | `decimal` | Valor positivo |
+| `metodo` | `int` | `1` CartaoCredito · `2` CartaoDebito · `3` Pix · `4` Transferencia |
+
+**Exemplo de requisição:**
+```json
+{
+  "usuarioId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "dataTourId": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
+  "valorPago": 1500.00,
+  "metodo": 3
+}
+```
+
+**Exemplo de resposta `201 Created`:**
+```json
+{
+  "ingressoId": "a1b2c3d4-...",
+  "codigoUnico": "OP-20260603-A1B2C3D4",
+  "statusIngresso": 2,
+  "pagamentoId": "e5f6g7h8-...",
+  "statusPagamento": 2
+}
+```
+
+| Campo | Valor | Significado |
+|---|:---:|---|
+| `statusIngresso` | `1` | PendentePagamento |
+| `statusIngresso` | `2` | Confirmado |
+| `statusIngresso` | `3` | Cancelado |
+| `statusPagamento` | `1` | Processando |
+| `statusPagamento` | `2` | Aprovado |
+| `statusPagamento` | `3` | Recusado |
+
+---
+
+#### Pagamentos
+
+| Método | Rota | Descrição | Auth |
+| :---: | :--- | :--- | :---: |
+| `POST` | `/api/pagamentos` | Processa o pagamento de um ingresso pendente | ✅ |
+
+**Corpo da requisição para `POST /api/pagamentos`:**
+```json
+{
+  "ingressoId": "a1b2c3d4-...",
+  "metodo": 1,
+  "valor": 1500.00
+}
+```
+
+---
+
+#### Monitoramento
 
 | Método | Rota | Descrição |
-|---|---|---|
-| `GET` | `/health` | Status geral da API e conectividade com Oracle |
+| :---: | :--- | :--- |
+| `GET` | `/health` | Verifica saúde da API e conectividade com o Oracle |
+| `GET` | `/swagger` | Documentação interativa Swagger/OpenAPI |
 
 ---
 
@@ -232,8 +289,6 @@ Após iniciar:
 
 ```bash
 POST /api/Auth/token
-Content-Type: application/json
-
 {
   "email": "teste@orbitpass.com",
   "senha": "Senha@123"
@@ -249,9 +304,6 @@ Clique em **Authorize** e informe:
 
 ```bash
 POST /api/ingressos
-Authorization: Bearer {token}
-Content-Type: application/json
-
 {
   "usuarioId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "dataTourId": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
@@ -293,21 +345,56 @@ Retorna `204 No Content` em caso de sucesso.
 
 ## Tratamento de Erros
 
-O middleware global captura todas as exceções e retorna respostas padronizadas:
+Todas as exceções são capturadas pelo `ExceptionHandlingMiddleware` e retornam um envelope JSON padronizado. Nunca é exposto stack trace ou mensagem interna ao cliente.
 
-| Situação | HTTP Status | Tipo |
-|---|---|---|
-| Regra de negócio violada (ex: cancelar ingresso já cancelado) | `422` | `Regra de negócio` |
-| Recurso não encontrado | `404` | `Recurso não encontrado` |
-| Token JWT ausente ou inválido | `401` | — |
-| Erro inesperado | `500` | `Erro interno` |
+### Formato padrão de erro
 
-**Exemplo de resposta de erro:**
 ```json
 {
   "status": 422,
   "tipo": "Regra de negócio",
   "mensagem": "Ingresso já está cancelado.",
+  "timestamp": "2026-06-03T12:00:00Z"
+}
+```
+
+### Mapeamento de exceções
+
+| Exceção | HTTP Status | `tipo` | Exemplo de cenário |
+|---|:---:|---|---|
+| `DomainException` | `422 Unprocessable Entity` | `Regra de negócio` | Cancelar ingresso já cancelado · Pagamento duplicado |
+| `KeyNotFoundException` | `404 Not Found` | `Recurso não encontrado` | Buscar ingresso com ID inexistente |
+| Token JWT ausente ou inválido | `401 Unauthorized` | — | Acessar endpoint protegido sem autenticar |
+| Qualquer outra exceção | `500 Internal Server Error` | `Erro interno` | Falha inesperada de infraestrutura |
+
+### Exemplos por cenário
+
+**Tentativa de cancelar um ingresso já cancelado — `422`:**
+```json
+{
+  "status": 422,
+  "tipo": "Regra de negócio",
+  "mensagem": "Ingresso já está cancelado.",
+  "timestamp": "2026-06-03T12:00:00Z"
+}
+```
+
+**Tentativa de cancelar ingresso de outro usuário — `422`:**
+```json
+{
+  "status": 422,
+  "tipo": "Regra de negócio",
+  "mensagem": "Você não tem permissão para cancelar este ingresso.",
+  "timestamp": "2026-06-03T12:00:00Z"
+}
+```
+
+**Ingresso não encontrado — `404`:**
+```json
+{
+  "status": 404,
+  "tipo": "Recurso não encontrado",
+  "mensagem": "Ingresso a1b2c3d4-... não encontrado.",
   "timestamp": "2026-06-03T12:00:00Z"
 }
 ```
@@ -400,11 +487,30 @@ OrbitPass/
 
 ## Segurança
 
-- Nenhuma credencial, senha ou chave secreta está presente em arquivos commitados
-- `appsettings.Development.json` está no `.gitignore`
-- Em produção, as variáveis `ORACLE_CONNECTION_STRING` e `JWT_SECRET_KEY` sobrescrevem qualquer valor do `appsettings.json`
-- Todas as rotas exceto `POST /api/Auth/token` exigem JWT válido (`[Authorize]`)
-- O arquivo `appsettings.Development.example.json` documenta a estrutura esperada sem expor valores reais
+A API foi projetada com segurança em camadas, protegendo tanto o acesso aos endpoints quanto as credenciais de infraestrutura.
+
+### Autenticação e Autorização
+
+- Todos os endpoints — exceto `POST /api/Auth/token` — são protegidos com `[Authorize]` e exigem um JWT válido no header `Authorization: Bearer {token}`
+- Tokens expiram em **8 horas** e são assinados com HMAC-SHA256
+- Tentativas de acesso sem token ou com token inválido retornam `401 Unauthorized` imediatamente, antes de qualquer lógica de negócio ser executada
+
+### Proteção de Credenciais
+
+- Nenhuma senha, chave secreta ou connection string está presente em arquivos commitados no repositório
+- O arquivo `appsettings.Development.json` — que contém as credenciais reais — está listado no `.gitignore` e **nunca sobe para o GitHub**
+- O arquivo `appsettings.Development.example.json` documenta apenas a estrutura esperada, sem valores reais, servindo como guia para novos desenvolvedores
+- Em produção e no pipeline de CI/CD (Azure DevOps), as credenciais são injetadas exclusivamente via variáveis de ambiente:
+
+| Variável | Descrição |
+|---|---|
+| `ORACLE_CONNECTION_STRING` | String de conexão completa com o banco Oracle |
+| `JWT_SECRET_KEY` | Chave secreta para assinatura dos tokens JWT |
+
+### Isolamento de Erros
+
+- O `ExceptionHandlingMiddleware` garante que nenhum stack trace, mensagem interna ou detalhe de infraestrutura seja exposto nas respostas de erro
+- Todas as exceções inesperadas retornam uma mensagem genérica `"Ocorreu um erro inesperado. Tente novamente."` com status `500`
 
 ---
 
