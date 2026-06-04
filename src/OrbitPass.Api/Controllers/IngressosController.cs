@@ -32,7 +32,7 @@ public class IngressosController : ControllerBase {
     }
 
     /// <summary>Compra um ingresso e processa o pagamento.</summary>
-    [HttpPost]
+    [HttpPost("comprar")]
     public async Task<IActionResult> Comprar(
         [FromBody] ComprarIngressoCommand command, CancellationToken ct) {
         var resultado = await _comprarHandler.Handle(command, ct);

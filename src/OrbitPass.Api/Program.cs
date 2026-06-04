@@ -4,11 +4,15 @@ using OrbitPass.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING")
-    ?? throw new InvalidOperationException("ORACLE_CONNECTION_STRING não definida.");
+var connectionString =
+    Environment.GetEnvironmentVariable("ORACLE_CONNECTION_STRING")
+    ?? builder.Configuration.GetConnectionString("OracleDb")
+    ?? throw new InvalidOperationException("Connection string não configurada.");
 
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-    ?? throw new InvalidOperationException("JWT_SECRET_KEY não definida.");
+var jwtSecret =
+    Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? builder.Configuration["Jwt:SecretKey"]
+    ?? throw new InvalidOperationException("JWT SecretKey não configurada.");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

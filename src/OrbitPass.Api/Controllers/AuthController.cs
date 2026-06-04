@@ -11,16 +11,21 @@ namespace OrbitPass.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase {
     private readonly IConfiguration _configuration;
+    private readonly string _jwtSecret;
 
-    public AuthController(IConfiguration configuration)
-        => _configuration = configuration;
+    public AuthController(IConfiguration configuration) {
+        _configuration = configuration;
+
+        _jwtSecret =
+            Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+            ?? _configuration["Jwt:SecretKey"]
+            ?? throw new InvalidOperationException("JWT SecretKey não configurada.");
+    }
 
     /// <summary>Gera um token JWT para testes.</summary>
     [AllowAnonymous]
     [HttpPost("token")]
     public IActionResult GerarToken([FromBody] LoginRequest request) {
-        // Validação simplificada para fins acadêmicos
-        // Em produção: validar contra banco de dados
         if (request.Email != "teste@orbitpass.com" || request.Senha != "Senha@123")
             return Unauthorized(new { mensagem = "Credenciais inválidas." });
 
@@ -29,8 +34,7 @@ public class AuthController : ControllerBase {
     }
 
     private string CriarToken(string email) {
-        var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")!;
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
