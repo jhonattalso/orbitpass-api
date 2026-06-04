@@ -248,8 +248,8 @@ Rotas consumidas via HTTP, retornam JSON. Documentadas interativamente em `/swag
 ```json
 {
   "usuarioId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "dataTourId": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
-  "valorPago": 1500.00,
+  "dataTourId": "11111111-1111-1111-1111-111111111111",
+  "valorPago": 50000.00,
   "metodo": 3
 }
 ```
@@ -325,8 +325,8 @@ Clique em **Authorize** e informe:
 POST /api/ingressos
 {
   "usuarioId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "dataTourId": "4fa85f64-5717-4562-b3fc-2c963f66afa7",
-  "valorPago": 1500.00,
+  "dataTourId": "11111111-1111-1111-1111-111111111111",
+  "valorPago": 50000.00,
   "metodo": 3
 }
 ```
