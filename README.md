@@ -71,30 +71,6 @@ O projeto segue os princípios de **Clean Architecture** com separação estrita
 └───────────────────┘
 ```
 
-### Fluxo de uma Requisição
-
-```
-[Request HTTP]
-│
-▼
-ExceptionHandlingMiddleware
-│
-▼
-[Controller] → valida autenticação JWT
-│
-▼
-[Handler] → executa regra de negócio
-│
-▼
-[Repository] → persiste via EF Core
-│
-▼
-[Oracle Database]
-│
-▼
-[Response JSON]
-```
-
 ---
 
 ## Modelagem do Banco de Dados
@@ -266,8 +242,8 @@ Content-Type: application/json
 
 ### 2. Autorizar no Swagger
 
-Clique em **Authorize** e informe:
-Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Clique em **Authorize** e informe:  
+```Bearer {token}```
 
 ### 3. Comprar um ingresso
 
