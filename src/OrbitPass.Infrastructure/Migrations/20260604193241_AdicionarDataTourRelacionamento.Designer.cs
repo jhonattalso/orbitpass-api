@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
 using OrbitPass.Infrastructure.Persistence.Context;
@@ -11,9 +12,11 @@ using OrbitPass.Infrastructure.Persistence.Context;
 namespace OrbitPass.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260604193241_AdicionarDataTourRelacionamento")]
+    partial class AdicionarDataTourRelacionamento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,29 +49,6 @@ namespace OrbitPass.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DATAS_TOUR", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            DataPartida = new DateTime(2026, 10, 15, 8, 0, 0, 0, DateTimeKind.Unspecified),
-                            Destino = "Órbita Baixa Terrestre",
-                            PrecoBase = 50000.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            DataPartida = new DateTime(2026, 12, 1, 10, 0, 0, 0, DateTimeKind.Unspecified),
-                            Destino = "Estação Lunar Artemis",
-                            PrecoBase = 250000.00m
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            DataPartida = new DateTime(2027, 5, 20, 14, 30, 0, 0, DateTimeKind.Unspecified),
-                            Destino = "Colônia de Marte",
-                            PrecoBase = 1500000.00m
-                        });
                 });
 
             modelBuilder.Entity("OrbitPass.Domain.Entities.Ingresso", b =>

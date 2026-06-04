@@ -115,3 +115,101 @@ END;
 
 /
 
+DECLARE
+    v_Count INTEGER;
+BEGIN
+SELECT COUNT(*) INTO v_Count FROM "__EFMigrationsHistory" WHERE "MigrationId" = N'20260604193241_AdicionarDataTourRelacionamento';
+IF v_Count = 0 THEN
+
+    BEGIN 
+    EXECUTE IMMEDIATE 'CREATE TABLE 
+    "DATAS_TOUR" (
+        "ID" RAW(16) NOT NULL,
+        "DESTINO" NVARCHAR2(100) NOT NULL,
+        "DATA_PARTIDA" TIMESTAMP(7) NOT NULL,
+        "PRECO_BASE" NUMBER(10,2) NOT NULL,
+        CONSTRAINT "PK_DATAS_TOUR" PRIMARY KEY ("ID")
+    )';
+    END;
+ END IF;
+END;
+
+/
+
+DECLARE
+    v_Count INTEGER;
+BEGIN
+SELECT COUNT(*) INTO v_Count FROM "__EFMigrationsHistory" WHERE "MigrationId" = N'20260604193241_AdicionarDataTourRelacionamento';
+IF v_Count = 0 THEN
+
+    EXECUTE IMMEDIATE '
+    CREATE INDEX "IX_INGRESSOS_DATA_TOUR_ID" ON "INGRESSOS" ("DATA_TOUR_ID")
+    ';
+ END IF;
+END;
+
+/
+
+DECLARE
+    v_Count INTEGER;
+BEGIN
+SELECT COUNT(*) INTO v_Count FROM "__EFMigrationsHistory" WHERE "MigrationId" = N'20260604193241_AdicionarDataTourRelacionamento';
+IF v_Count = 0 THEN
+
+    EXECUTE IMMEDIATE '
+    ALTER TABLE "INGRESSOS" ADD CONSTRAINT "FK_INGRESSOS_DATAS_TOUR_DATA_TOUR_ID" FOREIGN KEY ("DATA_TOUR_ID") REFERENCES "DATAS_TOUR" ("ID")
+    ';
+ END IF;
+END;
+
+/
+
+DECLARE
+    v_Count INTEGER;
+BEGIN
+SELECT COUNT(*) INTO v_Count FROM "__EFMigrationsHistory" WHERE "MigrationId" = N'20260604193241_AdicionarDataTourRelacionamento';
+IF v_Count = 0 THEN
+
+    EXECUTE IMMEDIATE '
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES (N''20260604193241_AdicionarDataTourRelacionamento'', N''9.0.0'')
+    ';
+ END IF;
+END;
+
+/
+
+DECLARE
+    v_Count INTEGER;
+BEGIN
+SELECT COUNT(*) INTO v_Count FROM "__EFMigrationsHistory" WHERE "MigrationId" = N'20260604200535_SeedDataTours';
+IF v_Count = 0 THEN
+
+    BEGIN
+    INSERT INTO "DATAS_TOUR" ("ID", "DATA_PARTIDA", "DESTINO", "PRECO_BASE")
+    VALUES (HEXTORAW('11111111111111111111111111111111'), TO_TIMESTAMP('2026-10-15 08:00:00.0000000', 'YYYY-MM-DD HH24:MI:SS.FF'), N'Órbita Baixa Terrestre', 50000.0);
+    INSERT INTO "DATAS_TOUR" ("ID", "DATA_PARTIDA", "DESTINO", "PRECO_BASE")
+    VALUES (HEXTORAW('22222222222222222222222222222222'), TO_TIMESTAMP('2026-12-01 10:00:00.0000000', 'YYYY-MM-DD HH24:MI:SS.FF'), N'Estação Lunar Artemis', 250000.0);
+    INSERT INTO "DATAS_TOUR" ("ID", "DATA_PARTIDA", "DESTINO", "PRECO_BASE")
+    VALUES (HEXTORAW('33333333333333333333333333333333'), TO_TIMESTAMP('2027-05-20 14:30:00.0000000', 'YYYY-MM-DD HH24:MI:SS.FF'), N'Colônia de Marte', 1500000.0);
+    END;
+ END IF;
+END;
+
+/
+
+DECLARE
+    v_Count INTEGER;
+BEGIN
+SELECT COUNT(*) INTO v_Count FROM "__EFMigrationsHistory" WHERE "MigrationId" = N'20260604200535_SeedDataTours';
+IF v_Count = 0 THEN
+
+    EXECUTE IMMEDIATE '
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES (N''20260604200535_SeedDataTours'', N''9.0.0'')
+    ';
+ END IF;
+END;
+
+/
+

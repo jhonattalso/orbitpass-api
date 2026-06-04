@@ -25,6 +25,11 @@ public class IngressoMapping : IEntityTypeConfiguration<Ingresso> {
                .HasForeignKey<Pagamento>(p => p.IngressoId)
                .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasOne(i => i.DataTour)
+               .WithMany(d => d.Ingressos)
+               .HasForeignKey(i => i.DataTourId)
+               .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(i => i.CodigoUnico).IsUnique();
     }
 }

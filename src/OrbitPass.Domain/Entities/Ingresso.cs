@@ -7,6 +7,7 @@ public class Ingresso {
     public Guid Id { get; private set; }
     public Guid UsuarioId { get; private set; }
     public Guid DataTourId { get; private set; }
+    public DataTour? DataTour { get; private set; }
     public string CodigoUnico { get; private set; } = string.Empty;
     public StatusIngresso Status { get; private set; }
     public DateTime DataCompra { get; private set; }

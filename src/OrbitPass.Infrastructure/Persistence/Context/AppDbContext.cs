@@ -9,8 +9,10 @@ public class AppDbContext : DbContext {
 
     public DbSet<Ingresso> Ingressos { get; set; }
     public DbSet<Pagamento> Pagamentos { get; set; }
+    public DbSet<DataTour> DatasTour { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        modelBuilder.ApplyConfiguration(new DataTourMapping());
         modelBuilder.ApplyConfiguration(new IngressoMapping());
         modelBuilder.ApplyConfiguration(new PagamentoMapping());
         base.OnModelCreating(modelBuilder);
