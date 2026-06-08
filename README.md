@@ -148,20 +148,13 @@ Enquanto o diagrama acima ilustra a topologia e os relacionamentos principais, o
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/OrbitPass.git
+git clone https://github.com/seu-usuario/OrbitPass.git](https://github.com/jhonattalso/orbitpass-api.git)
 cd OrbitPass
 ```
 
 ### 2. Configure o ambiente local
 
-Copie o arquivo de exemplo e preencha com seus dados reais:
-
-```bash
-cp src/OrbitPass.Api/appsettings.Development.example.json \
-   src/OrbitPass.Api/appsettings.Development.json
-```
-
-Edite o `appsettings.Development.json`:
+Crie ou edite o arquivo src/OrbitPass.Api/appsettings.Development.json (Este arquivo é ignorado pelo Git por segurança):
 
 ```json
 {
@@ -180,9 +173,7 @@ Edite o `appsettings.Development.json`:
 ### 3. Aplique as Migrations
 
 ```bash
-dotnet ef database update \
-  --project src/OrbitPass.Infrastructure \
-  --startup-project src/OrbitPass.Api
+dotnet ef database update --project src/OrbitPass.Infrastructure --startup-project src/OrbitPass.Api
 ```
 
 ### 4. Execute a API
